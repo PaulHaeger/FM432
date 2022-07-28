@@ -1,0 +1,3 @@
+[submodule "YAHAL"]
+	path = YAHAL
+	url = https://git.fh-aachen.de/Terstegge/YAHAL.git

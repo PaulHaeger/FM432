@@ -1,0 +1,58 @@
+set(CMAKE_SYSTEM_NAME NOSYS)
+set(CMAKE_SYSTEM_PROCESSOR arm)
+set(TOOLCHAIN_FILES ${CMAKE_SOURCE_DIR}/toolchain/msp432)
+
+set(MSP432_FLAGS "-mcpu=cortex-m4 -march=armv7e-m -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__MSP432P401R__ -Dgcc -gdwarf-3 -gstrict-dwarf" )
+
+include_directories(${tools}/arm-none-eabi/include)
+
+set(ARM_TOOLCHAIN_PATH /usr CACHE "Path to the arm-none-eabi toochain.")
+set(tools ${ARM_TOOLCHAIN_PATH})
+set(TOOL_PREFIX arm-none-eabi)
+set(CMAKE_C_COMPILER ${tools}/bin/${TOOL_PREFIX}-gcc)
+set(CMAKE_ASM_COMPILER ${CMAKE_C_COMPILER})
+set(CMAKE_CXX_COMPILER ${tools}/bin/${TOOL_PREFIX}-g++)
+
+add_compile_definitions(__MSP432P401R__ gcc ARM_MATH_CM4 __FPU_PRESENT=1 TARGET_IS_MSP432P4XX)
+
+# Default C compiler flags
+set(CMAKE_C_FLAGS ${MSP432_FLAGS} CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_DEBUG_INIT "${MSP432_FLAGS} -g3 -Og -Wall -pedantic -DDEBUG")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELEASE_INIT "${MSP432_FLAGS} -O3 -Wall")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_MINSIZEREL_INIT "${MSP432_FLAGS} -Os -Wall")
+set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_C_FLAGS_RELWITHDEBINFO_INIT  "${MSP432_FLAGS} -O2 -g -Wall")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO_INIT}" CACHE STRING "" FORCE)
+# Default C++ compiler flags
+set(CMAKE_CXX_FLAGS ${MSP432_FLAGS} CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_DEBUG_INIT "${MSP432_FLAGS} -g3 -Og -Wall -pedantic -DDEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELEASE_INIT "${MSP432_FLAGS} -O3 -Wall")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_MINSIZEREL_INIT "${MSP432_FLAGS} -Os -Wall")
+set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL_INIT}" CACHE STRING "" FORCE)
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT  "${MSP432_FLAGS} -O2 -g -Wall")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO_INIT}" CACHE STRING "" FORCE)
+
+set(CMAKE_ASM_FLAGS "${OBJECT_GEN_FLAGS} -x assembler-with-cpp " CACHE INTERNAL "ASM Compiler options")
+
+# Linker Flags
+SET(CMAKE_EXE_LINKER_FLAGS  "-Wl,--gc-sections --specs=nano.specs --specs=nosys.specs -mfpu=fpv4-sp-d16 -D__MASP432P401R__ -Dgcc -gdwarf-3 -gstrict-dwarf -mfloat-abi=hard -mcpu=cortex-m4 -mthumb -Wl,-Map=${NAME}.map -T \"${TOOLCHAIN_FILES}/msp432p401r.lds\"")
+
+set(CMAKE_OBJCOPY ${tools}/${TOOL_PREFIX}-objcopy CACHE INTERNAL "objcopy tool")
+set(CMAKE_SYSROOT ${tools}/bin/arm-none-eabi)
+
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+#link_directories("${tools}/${TOOL_PREFIX}/lib/thumb/v7e-m+fp/hard")
+
+set(SRC_TOOLCHAIN "${TOOLCHAIN_FILES}/startup_msp432p401r_gcc.c"
+                  "${TOOLCHAIN_FILES}/system_msp432p401r.c"
+    )
+
+include_directories(${TOOLCHAIN_FILES})
+include_directories(${TOOLCHAIN_FILES}/CMSIS)
